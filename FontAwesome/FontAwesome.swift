@@ -44,7 +44,7 @@ private class FontLoader {
         var error: Unmanaged<CFError>?
         if !CTFontManagerRegisterGraphicsFont(font, &error) {
             let errorDescription: CFStringRef = CFErrorCopyDescription(error!.takeUnretainedValue())
-            let nsError = error!.takeUnretainedValue() as AnyObject as! NSError
+            let nsError = error!.takeUnretainedValue() as CFError
             NSException(name: NSInternalInconsistencyException, reason: errorDescription as String, userInfo: [NSUnderlyingErrorKey: nsError]).raise()
         }
     }
@@ -74,7 +74,7 @@ public extension String {
 }
 
 public extension UIImage {
-    public static func fontAwesomeIconWithName(name: FontAwesome, textColor: UIColor, size: CGSize) -> UIImage {
+    public class func fontAwesomeIconWithName(name: FontAwesome, textColor: UIColor, size: CGSize) -> UIImage {
         let paragraph = NSMutableParagraphStyle()
         paragraph.lineBreakMode = NSLineBreakMode.ByWordWrapping
         paragraph.alignment = .Center
@@ -774,8 +774,10 @@ public extension String {
             
         ]
         
-        if let raw = dict[code], icon = FontAwesome(rawValue: raw)  {
-            return self.fontAwesomeIconWithName(icon)
+        if let raw = dict[code] {
+            if let icon = FontAwesome(rawValue: raw)  {
+                return self.fontAwesomeIconWithName(icon)
+            }
         }
         
         return nil
